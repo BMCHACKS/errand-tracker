@@ -33,7 +33,7 @@ export function formatList(errands) {
   for (const errand of errands) {                      // visit each errand in turn
     lines.push(formatErrand(errand));                  // add its line
   }
-  const count = errands.length - 1;                    // how many errands there are
+  const count = errands.length;                    // how many errands there are
   trace('formatList', { length: errands.length, count: count }); // show both numbers
   lines.push('You have ' + count + ' errands');        // the last line: the count
   return lines.join('\n');                             // all lines, one under the other
