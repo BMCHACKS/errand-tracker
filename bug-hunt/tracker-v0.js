@@ -42,7 +42,7 @@ export function formatList(errands) {
 // Add an errand to the list, unless its text is empty.
 export function addErrand(errands, nextId, text) {
   trace('addErrand', { text: text, nextId: nextId });  // show what was typed
-  if (text === '') {                                   // is the text empty?
+  if (text.trim() === '') {                                   // is the text empty?
     return 'Errand text cannot be empty.';             // then refuse it
   }
   errands.push({ id: nextId, text: text, done: false }); // add the new errand

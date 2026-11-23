@@ -392,4 +392,52 @@ You have 4 errands
 
 **The changes I made:**
 
+Before: 
+`if (text === '')`
+
+After:
+`if (text.trim() === '')`
+
 **How I confirmed the fix**
+
+The test:
+```
+> errand-tracker@1.0.0 bugs
+> node --test bug-hunt/bugs.test.js
+
+✔ bug A: list says how many errands there are (0.7725ms)
+✔ bug B: search ignores upper and lower case (0.1877ms)
+✔ bug C: done ticks only the errand with that id (0.5811ms)
+✔ bug D: an errand made only of spaces is refused (0.1341ms)
+✖ bug E: a done errand shows a tick (0.889ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 4
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 65.8565
+```
+
+Run after fixing the bug:
+```
+$ node bug-hunt/tracker-v0.js
+Errand tracker v0. Commands: add <text>, list, search <text>, done <id>, quit
+> add
+Errand text cannot be empty.
+> add
+Errand text cannot be empty.
+> add Meet CEO of NDURE
+Added #4: Meet CEO of NDURE
+> list
+#1 [ ] Buy a notebook
+#2 [ ] Order a gas cylinder
+#3 [ ] Fix the bike light
+#4 [ ] Meet CEO of NDURE
+You have 4 errands
+```
+
+Here the first `add` and vlaue was left empty. The subsequent one tried 10 spaces. 
+Both were rejected. Thus, fixing the bug.
+
