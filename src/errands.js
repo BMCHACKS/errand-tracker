@@ -14,6 +14,11 @@ let nextId = 1;
 // { id: 1, text: 'Buy rice', done: false } gives '#1 [ ] Buy rice'
 // { id: 4, text: 'Pay the bill', done: true } gives '#4 [x] Pay the bill'
 export function formatErrand(errand) {
+    let brackets = '[ ]';
+    if (errand.done){
+        brackets = '[x]';
+    }
+    return'#' + errand.id + " "+ brackets +" " + errand.text;
 }
 
 // Lab 2.10. Every errand on its own line, then 'You have 2 errands'
