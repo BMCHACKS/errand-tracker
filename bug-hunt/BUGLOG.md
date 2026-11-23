@@ -290,10 +290,47 @@ Done #5
 
 **The changes I made:**
 
+Before:
+`if (errand.id = id)`
 
+After:
+`if (errand.id === id)`
 
 **How I confirmed the fix**
 
+Since Bug E interferes with actually displaying the `x` mark when list is called. By following the trace, we can be ensured that actual change is taking place. As evidence shows, previously, no matter what `done <value>` would've been asked, all id's would've been set to the given `<value>`. Now the program clearly states when an Id does not exist and if it doesn, set's it's done to `true`.
+
+```
+Errand tracker v0. Commands: add <text>, list, search <text>, done <id>, quit
+> list
+[trace] formatErrand: {"id":1,"text":"Buy a notebook","done":false}
+[trace] formatErrand: {"id":2,"text":"Order a gas cylinder","done":false}
+[trace] formatErrand: {"id":3,"text":"Fix the bike light","done":false}
+[trace] formatList: {"length":3,"count":3}
+#1 [ ] Buy a notebook
+#2 [ ] Order a gas cylinder
+#3 [ ] Fix the bike light
+You have 3 errands
+> done 5
+[trace] markDone: {"id":1,"text":"Buy a notebook","done":false}
+[trace] markDone: {"id":2,"text":"Order a gas cylinder","done":false}
+[trace] markDone: {"id":3,"text":"Fix the bike light","done":false}
+No errand #5.
+> done 1
+[trace] markDone: {"id":1,"text":"Buy a notebook","done":true}
+[trace] markDone: {"id":2,"text":"Order a gas cylinder","done":false}
+[trace] markDone: {"id":3,"text":"Fix the bike light","done":false}
+Done #1
+> list
+[trace] formatErrand: {"id":1,"text":"Buy a notebook","done":true}
+[trace] formatErrand: {"id":2,"text":"Order a gas cylinder","done":false}
+[trace] formatErrand: {"id":3,"text":"Fix the bike light","done":false}
+[trace] formatList: {"length":3,"count":3}
+#1 [ ] Buy a notebook
+#2 [ ] Order a gas cylinder
+#3 [ ] Fix the bike light
+You have 3 errands
+```
 
 
 ## Bug D

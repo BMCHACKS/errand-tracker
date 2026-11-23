@@ -66,7 +66,7 @@ export function searchErrands(errands, query) {
 export function markDone(errands, id) {
   let found = false;                                   // no errand found yet
   for (const errand of errands) {                      // visit each errand in turn
-    if (errand.id = id) {                              // is this the errand with that id?
+    if (errand.id === id) {                              // is this the errand with that id?
       errand.done = true;                              // then mark it as done
       found = true;                                    // and remember we found one
     }
