@@ -544,3 +544,5 @@ Done #2
 #3 [ ] Fix the bike light
 You have 3 errands
 ```
+
+I ended up doing Bug E as well. Since, I was bored.
