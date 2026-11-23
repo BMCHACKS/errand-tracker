@@ -1,4 +1,4 @@
-chosen: (write three of B, C, D, E here, for example: B, D, E)
+chosen: B, C, D
 
 # Bug log
 
@@ -24,7 +24,8 @@ You have 3 errands
 > quit
 Bye.
 ```
-**Actual:** (paste the output)
+
+**Actual:** 
 ```
 Errand tracker v0. Commands: add <text>, list, search <text>, done
 <id>, quit
@@ -77,6 +78,7 @@ Test passed:
 ℹ todo 0
 ℹ duration_ms 61.0258
 ```
+
 Run after the change:
 ```
 $ node ./bug-hunt/tracker-v0.js
@@ -96,6 +98,83 @@ Added #4: Buy milk
 You have 4 errands
 ```
 
-## Bug ?
+## Bug B
 
-(copy the headings above for each of your three bugs; start each heading with "## Bug B", "## Bug C", "## Bug D" or "## Bug E")
+**Steps to reproduce**
+
+1. node bug-hunt/tracker-v0.js
+2. list
+3. search buy
+
+**Expected:**
+```
+$ node bug-hunt/tracker-v0.js
+Errand tracker v0. Commands: add <text>, list, search <text>, done <id>, quit
+> list
+#1 [ ] Buy a notebook
+#2 [ ] Order a gas cylinder
+#3 [ ] Fix the bike light
+You have 3 errands
+> search buy
+#1 [ ] Buy a notebook
+You have 1 errands
+```
+
+**Actual:**
+```
+$ node bug-hunt/tracker-v0.js
+Errand tracker v0. Commands: add <text>, list, search <text>, done <id>, quit
+> list
+#1 [ ] Buy a notebook
+#2 [ ] Order a gas cylinder
+#3 [ ] Fix the bike light
+You have 3 errands
+> search buy
+No errands match.
+```
+
+**Cause Chain**
+1. Symptom: There is 1 task that contains the word 'Buy', but 'search buy' is case-sensitive.
+2. The query contains `buy` and `matches` is `false`, where when query is `Buy` the `matches` is `True`.
+3. Cause (file and line): file: `tracker-v0.js` and line no. ``.
+
+**Evidence**
+```
+> search buy
+[trace] searchErrands: {"text":"Buy a notebook","query":"buy","matches":false}
+[trace] searchErrands: {"text":"Order a gas cylinder","query":"buy","matches":false}
+[trace] searchErrands: {"text":"Fix the bike light","query":"buy","matches":false}
+No errands match.
+> search Buy
+[trace] searchErrands: {"text":"Buy a notebook","query":"Buy","matches":true}
+[trace] searchErrands: {"text":"Order a gas cylinder","query":"Buy","matches":false}
+[trace] searchErrands: {"text":"Fix the bike light","query":"Buy","matches":false}
+[trace] formatErrand: {"id":1,"text":"Buy a notebook","done":false}
+[trace] formatList: {"length":1,"count":1}
+#1 [ ] Buy a notebook
+You have 1 errands
+```
+
+**The changes I made:**
+
+**How I confirmed the fix**
+
+## Bug C
+
+**Steps to reproduce**
+**Expected:**
+**Actual:**
+**Cause Chain**
+**Evidence**
+**The changes I made:**
+**How I confirmed the fix**
+
+## Bug D
+
+**Steps to reproduce**
+**Expected:**
+**Actual:**
+**Cause Chain**
+**Evidence**
+**The changes I made:**
+**How I confirmed the fix**
