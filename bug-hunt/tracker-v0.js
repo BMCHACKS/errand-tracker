@@ -53,7 +53,7 @@ export function addErrand(errands, nextId, text) {
 export function searchErrands(errands, query) {
   const found = [];                                    // an empty list for the matches
   for (const errand of errands) {                      // visit each errand in turn
-    const matches = errand.text.includes(query);       // does its text contain the query?
+    const matches = errand.text.toLowerCase().includes(query.toLowerCase());       // does its text contain the query?
     trace('searchErrands', { text: errand.text, query: query, matches: matches });
     if (matches) {                                     // if it does,
       found.push(errand);                              // keep it

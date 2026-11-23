@@ -37,6 +37,7 @@ You have 2 errands
 > quit
 Bye.
 ```
+
 **A guess I ruled out, and the one change that ruled it out:**
 
 guess 3, ruled out by adding one errand.
@@ -136,7 +137,7 @@ No errands match.
 **Cause Chain**
 1. Symptom: There is 1 task that contains the word 'Buy', but 'search buy' is case-sensitive.
 2. The query contains `buy` and `matches` is `false`, where when query is `Buy` the `matches` is `True`.
-3. Cause (file and line): file: `tracker-v0.js` and line no. ``.
+3. Cause (file and line): file: `tracker-v0.js` and line no. `56`.
 
 **Evidence**
 ```
@@ -157,7 +158,38 @@ You have 1 errands
 
 **The changes I made:**
 
+Before:
+` const matches = errand.text.includes(query); `
+
+After:
+`const matches = errand.text.toLowerCase().includes(query.toLowerCase()); `
+
 **How I confirmed the fix**
+
+By searching for keywords in the given list. The chages to line `57` ensure the query and original text are in the lower-case.
+
+Confirmed by running test:  
+```
+$ npm run bugs
+
+> errand-tracker@1.0.0 bugs
+> node --test bug-hunt/bugs.test.js
+
+✔ bug A: list says how many errands there are (0.7519ms)
+✔ bug B: search ignores upper and lower case (0.1724ms)
+✖ bug C: done ticks only the errand with that id (1.4335ms)
+✖ bug D: an errand made only of spaces is refused (0.2423ms)
+✖ bug E: a done errand shows a tick (0.3085ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 2
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 66.1684
+```
+
 
 ## Bug C
 
