@@ -106,6 +106,7 @@ You have 4 errands
 1. node bug-hunt/tracker-v0.js
 2. list
 3. search buy
+4. quit
 
 **Expected:**
 ```
@@ -166,7 +167,7 @@ After:
 
 **How I confirmed the fix**
 
-By searching for keywords in the given list. The chages to line `57` ensure the query and original text are in the lower-case.
+By searching for keywords in the given list. The chages to line `56` ensure the query and original text are in the lower-case.
 
 Confirmed by running test:  
 ```
@@ -194,12 +195,106 @@ $ npm run bugs
 ## Bug C
 
 **Steps to reproduce**
+
+1. node bug-hunt/tracker-v0.js --trace
+2. list
+3. done 1
+4. list
+4. quit
+
 **Expected:**
+
+```
+Errand tracker v0. Commands: add <text>, list, search <text>, done <id>, quit
+> list
+[trace] formatErrand: {"id":1,"text":"Buy a notebook","done":false}
+[trace] formatErrand: {"id":2,"text":"Order a gas cylinder","done":false}
+[trace] formatErrand: {"id":3,"text":"Fix the bike light","done":false}
+[trace] formatList: {"length":3,"count":3}
+#1 [ ] Buy a notebook
+#2 [ ] Order a gas cylinder
+#3 [ ] Fix the bike light
+You have 3 errands
+> done 1
+[trace] markDone: {"id":1,"text":"Buy a notebook","done":true}
+[trace] markDone: {"id":2,"text":"Order a gas cylinder","done":false}
+[trace] markDone: {"id":3,"text":"Fix the bike light","done":false}
+Done #1
+```
+
 **Actual:**
+
+```
+Errand tracker v0. Commands: add <text>, list, search <text>, done <id>, quit
+> list
+[trace] formatErrand: {"id":1,"text":"Buy a notebook","done":false}
+[trace] formatErrand: {"id":2,"text":"Order a gas cylinder","done":false}
+[trace] formatErrand: {"id":3,"text":"Fix the bike light","done":false}
+[trace] formatList: {"length":3,"count":3}
+#1 [ ] Buy a notebook
+#2 [ ] Order a gas cylinder
+#3 [ ] Fix the bike light
+You have 3 errands
+> done 1
+[trace] markDone: {"id":1,"text":"Buy a notebook","done":true}
+[trace] markDone: {"id":1,"text":"Order a gas cylinder","done":true}
+[trace] markDone: {"id":1,"text":"Fix the bike light","done":true}
+Done #1
+```
+
 **Cause Chain**
+
+1. Sympton: The [trace] shows errands (#1, #2, #3), after `done 1`, the all of their ids are set to `1` and done to `true`
+2. The `errand.id` is assigned (`=`) to the search id instead of `===` (comparison).
+3. Cause (file and line): file: `tracker-v0.js` and line no. `69`.
+
 **Evidence**
+
+```
+Errand tracker v0. Commands: add <text>, list, search <text>, done <id>, quit
+> list
+[trace] formatErrand: {"id":1,"text":"Buy a notebook","done":false}
+[trace] formatErrand: {"id":2,"text":"Order a gas cylinder","done":false}
+[trace] formatErrand: {"id":3,"text":"Fix the bike light","done":false}
+[trace] formatList: {"length":3,"count":3}
+#1 [ ] Buy a notebook
+#2 [ ] Order a gas cylinder
+#3 [ ] Fix the bike light
+You have 3 errands
+> done 1
+[trace] markDone: {"id":1,"text":"Buy a notebook","done":true}
+[trace] markDone: {"id":1,"text":"Order a gas cylinder","done":true}
+[trace] markDone: {"id":1,"text":"Fix the bike light","done":true}
+Done #1
+> done 2
+[trace] markDone: {"id":2,"text":"Buy a notebook","done":true}
+[trace] markDone: {"id":2,"text":"Order a gas cylinder","done":true}
+[trace] markDone: {"id":2,"text":"Fix the bike light","done":true}
+Done #2
+> done 3
+[trace] markDone: {"id":3,"text":"Buy a notebook","done":true}
+[trace] markDone: {"id":3,"text":"Order a gas cylinder","done":true}
+[trace] markDone: {"id":3,"text":"Fix the bike light","done":true}
+Done #3
+> done 4
+[trace] markDone: {"id":4,"text":"Buy a notebook","done":true}
+[trace] markDone: {"id":4,"text":"Order a gas cylinder","done":true}
+[trace] markDone: {"id":4,"text":"Fix the bike light","done":true}
+Done #4
+> done 5
+[trace] markDone: {"id":5,"text":"Buy a notebook","done":true}
+[trace] markDone: {"id":5,"text":"Order a gas cylinder","done":true}
+[trace] markDone: {"id":5,"text":"Fix the bike light","done":true}
+Done #5
+```
+
 **The changes I made:**
+
+
+
 **How I confirmed the fix**
+
+
 
 ## Bug D
 
