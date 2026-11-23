@@ -28,6 +28,11 @@ export function formatList(list) {
 
 // Lab 2.12. How many errands in the list are not done.
 export function countOpen(list) {
+    let count = 0;
+    for (const errand of list){
+        if (!errand.done) { count++; }
+    }
+    return count;
 }
 
 // Lab 2.12. The errands whose text contains the query, ignoring upper and
