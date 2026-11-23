@@ -298,7 +298,7 @@ After:
 
 **How I confirmed the fix**
 
-Since Bug E interferes with actually displaying the `x` mark when list is called. By following the trace, we can be ensured that actual change is taking place. As evidence shows, previously, no matter what `done <value>` would've been asked, all id's would've been set to the given `<value>`. Now the program clearly states when an Id does not exist and if it doesn, set's it's done to `true`.
+Since Bug E interferes with actually displaying the `x` mark when list is called. By following the trace, we can be ensured that actual change is taking place. As evidence shows, previously, no matter what `done <value>` would've been entered, all id's would've been set to the given `<value>`. Now the program clearly states when an Id does not exist and if it doesn, set's it's done to `true`.
 
 ```
 Errand tracker v0. Commands: add <text>, list, search <text>, done <id>, quit
@@ -336,9 +336,60 @@ You have 3 errands
 ## Bug D
 
 **Steps to reproduce**
+1. node bug-hunt/tracker-v0.js
+2. `add __` '_' here dictate 1 space
+3. list
+4. quit   
+
 **Expected:**
+
+```
+Errand tracker v0. Commands: add <text>, list, search <text>, done <id>, quit
+> add
+Errand text cannot be empty.
+```
+
 **Actual:**
+
+```
+> add
+Added #4:
+> list
+#1 [ ] Buy a notebook
+#2 [ ] Order a gas cylinder
+#3 [ ] Fix the bike light
+#4 [ ]
+You have 4 errands
+```
+
 **Cause Chain**
+1. Symptom: Adding 2 or more spaces adds an empty errand. Whereas, 1 space results in no empty errand being added.
+2. Empty errand is printed when doing `list`.
+3. Cause (file and line): file: `tracker-v0.js` and line no: `45`
+
 **Evidence**
+
+```
+Errand tracker v0. Commands: add <text>, list, search <text>, done <id>, quit
+> add
+[trace] addErrand: {"text":"","nextId":4}
+Errand text cannot be empty.
+> add
+[trace] addErrand: {"text":" ","nextId":4}
+Added #4:
+> list
+[trace] formatErrand: {"id":1,"text":"Buy a notebook","done":false}
+[trace] formatErrand: {"id":2,"text":"Order a gas cylinder","done":false}
+[trace] formatErrand: {"id":3,"text":"Fix the bike light","done":false}
+[trace] formatErrand: {"id":4,"text":" ","done":false}
+[trace] formatList: {"length":4,"count":4}
+#1 [ ] Buy a notebook
+#2 [ ] Order a gas cylinder
+#3 [ ] Fix the bike light
+#4 [ ]
+You have 4 errands
+```
+
 **The changes I made:**
+
 **How I confirmed the fix**
