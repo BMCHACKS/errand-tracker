@@ -1,4 +1,4 @@
-chosen: B, C, D
+chosen: B, C, D, E
 
 # Bug log
 
@@ -440,4 +440,73 @@ You have 4 errands
 
 Here the first `add` and vlaue was left empty. The subsequent one tried 10 spaces. 
 Both were rejected. Thus, fixing the bug.
+
+
+## Bug E
+
+**Steps to reproduce:**
+
+1. node bug-hunt/tracker-v0.js --trace
+2. done 1
+3. done 2
+4. list
+5. quit
+
+**Expected:**
+
+```
+Errand tracker v0. Commands: add <text>, list, search <text>, done <id>, quit
+> done 1
+Done #1
+> done 2
+Done #2
+> list
+#1 [x] Buy a notebook
+#2 [x] Order a gas cylinder
+#3 [ ] Fix the bike light
+You have 3 errands
+```
+
+**Actual:**
+
+```
+Errand tracker v0. Commands: add <text>, list, search <text>, done <id>, quit
+> done 1
+Done #1
+> done 2
+Done #2
+> list
+#1 [ ] Buy a notebook
+#2 [ ] Order a gas cylinder
+#3 [ ] Fix the bike light
+You have 3 errands
+```
+
+**Cause Chain**
+
+1. Symptom: done 1 and done 2, do not show the errands as ticked off
+2. The errands are done, but they're not displayed as being ticked (evidence shows 1 as done, but displayed as [ ])
+3. Cause (file and line): file: `tracker-v0.js` and line no: `26`
+
+**Evidence**
+
+```
+Errand tracker v0. Commands: add <text>, list, search <text>, done <id>, quit
+> done 1
+[trace] markDone: {"id":1,"text":"Buy a notebook","done":true}
+[trace] markDone: {"id":2,"text":"Order a gas cylinder","done":false}
+[trace] markDone: {"id":3,"text":"Fix the bike light","done":false}
+Done #1
+> list
+[trace] formatErrand: {"id":1,"text":"Buy a notebook","done":true}
+[trace] formatErrand: {"id":2,"text":"Order a gas cylinder","done":false}
+[trace] formatErrand: {"id":3,"text":"Fix the bike light","done":false}
+[trace] formatList: {"length":3,"count":3}
+#1 [ ] Buy a notebook
+#2 [ ] Order a gas cylinder
+#3 [ ] Fix the bike light
+You have 3 errands
+```
+
+**How I confirmed the fix**
 
