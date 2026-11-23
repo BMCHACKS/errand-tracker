@@ -1,4 +1,4 @@
-`chosen: B, C, D, E
+chosen: B, C, D
 
 # Bug log
 
