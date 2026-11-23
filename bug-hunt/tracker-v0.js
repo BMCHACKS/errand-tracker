@@ -23,7 +23,7 @@ function trace(where, values) {
 // One errand as one line, for example: #1 [ ] Buy rice
 export function formatErrand(errand) {
   trace('formatErrand', errand);                       // show the errand we were given
-  const tick = errand.don ? '[x]' : '[ ]';             // [x] if the errand is done, [ ] if not
+  const tick = errand.done ? '[x]' : '[ ]';             // [x] if the errand is done, [ ] if not
   return '#' + errand.id + ' ' + tick + ' ' + errand.text; // put the pieces together
 }
 

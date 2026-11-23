@@ -1,4 +1,4 @@
-chosen: B, C, D, E
+`chosen: B, C, D, E
 
 # Bug log
 
@@ -508,5 +508,39 @@ Done #1
 You have 3 errands
 ```
 
+**The changes I made**
+
+Before:
+`const tick = errand.don ? '[x]' : '[ ]';  `
+
+After:
+`const tick = errand.done ? '[x]' : '[ ]';  `
+
 **How I confirmed the fix**
 
+The test:
+```
+> errand-tracker@1.0.0 bugs
+> node --test bug-hunt/bugs.test.js
+
+✔ bug A: list says how many errands there are (0.7938ms)
+✔ bug B: search ignores upper and lower case (0.1762ms)
+✔ bug C: done ticks only the errand with that id (0.5876ms)
+✔ bug D: an errand made only of spaces is refused (0.1295ms)
+✔ bug E: a done errand shows a tick (0.1201ms)
+```
+
+Run after fix:
+```  
+$ node bug-hunt/tracker-v0.js
+Errand tracker v0. Commands: add <text>, list, search <text>, done <id>, quit
+> done 1
+Done #1
+> done 2
+Done #2
+> list
+#1 [x] Buy a notebook
+#2 [x] Order a gas cylinder
+#3 [ ] Fix the bike light
+You have 3 errands
+```
