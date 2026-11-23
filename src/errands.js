@@ -38,6 +38,13 @@ export function countOpen(list) {
 // Lab 2.12. The errands whose text contains the query, ignoring upper and
 // lower case. Bring your searchErrands from chapter 2.8.
 export function searchErrands(list, query) {
+    let errands = [];
+    for (const errand of list){
+        if (errand.text.toLowerCase().includes(query.trim().toLowerCase())){
+            errands.push(errand);
+        }
+    }
+    return errands;
 }
 
 // ---- Commands (cli.js calls these) ----
