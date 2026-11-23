@@ -5,6 +5,8 @@ chosen: B, C, D
 One section per bug: bug A from lab 1.13, then the three you chose.
 Write in your own words. Paste your own output, from your own tracker, with your own sample errands.
 
+Note: in the pasted output I left out the last `> quit` and `Bye.` lines for bugs B to E, to keep the blocks short. Expected blocks show what the program prints, without `[trace]` lines.
+
 ## Bug A: the count is wrong
 
 **Steps to reproduce** (exact commands, in order, from a fresh start):
@@ -14,8 +16,7 @@ Write in your own words. Paste your own output, from your own tracker, with your
 
 **Expected:**
 ```
-Errand tracker v0. Commands: add <text>, list, search <text>, done
-<id>, quit
+Errand tracker v0. Commands: add <text>, list, search <text>, done <id>, quit
 > list
 #1 [ ] Buy a notebook
 #2 [ ] Order a gas cylinder
@@ -25,10 +26,9 @@ You have 3 errands
 Bye.
 ```
 
-**Actual:** 
+**Actual:** (paste the output)
 ```
-Errand tracker v0. Commands: add <text>, list, search <text>, done
-<id>, quit
+Errand tracker v0. Commands: add <text>, list, search <text>, done <id>, quit
 > list
 #1 [ ] Buy a notebook
 #2 [ ] Order a gas cylinder
@@ -43,9 +43,9 @@ Bye.
 guess 3, ruled out by adding one errand.
 
 **Cause chain** (from what I saw to the line that causes it; each link with its evidence):
-1. Symptom: There are 3 errands lines (#1, #2, #3), but the last line says "You have 2 errands" instead of "You have 3 errands".
-2. The count line prints the value of `count` (evidence: [trace] line showing it is 2).
-3. Cause (file and line): file: `tracker-v0.js`, line `36`
+1. Symptom: There are 3 errand lines (#1, #2, #3), but the last line says "You have 2 errands" instead of "You have 3 errands".
+2. The count line prints the value of `count`, and `count` is 2 while `length` is 3 (evidence: the `[trace] formatList` line below).
+3. Cause (file and line): `tracker-v0.js`, line 36: `const count = errands.length - 1;` subtracts one.
 
 **Evidence** (paste the `[trace]` lines that show each link):
 ```
@@ -99,54 +99,36 @@ Added #4: Buy milk
 You have 4 errands
 ```
 
-## Bug B
+## Bug B: search does not find "Buy" when I type "buy"
 
-**Steps to reproduce**
-
-1. node bug-hunt/tracker-v0.js
-2. list
-3. search buy
-4. quit
+**Steps to reproduce** (exact commands, in order, from a fresh start):
+1. node bug-hunt/tracker-v0.js --trace
+2. search buy
+3. quit
 
 **Expected:**
 ```
-$ node bug-hunt/tracker-v0.js
 Errand tracker v0. Commands: add <text>, list, search <text>, done <id>, quit
-> list
-#1 [ ] Buy a notebook
-#2 [ ] Order a gas cylinder
-#3 [ ] Fix the bike light
-You have 3 errands
 > search buy
 #1 [ ] Buy a notebook
 You have 1 errands
 ```
 
-**Actual:**
+**Actual:** (paste the output)
 ```
-$ node bug-hunt/tracker-v0.js
 Errand tracker v0. Commands: add <text>, list, search <text>, done <id>, quit
-> list
-#1 [ ] Buy a notebook
-#2 [ ] Order a gas cylinder
-#3 [ ] Fix the bike light
-You have 3 errands
-> search buy
-No errands match.
-```
-
-**Cause Chain**
-1. Symptom: There is 1 task that contains the word 'Buy', but 'search buy' is case-sensitive.
-2. The query contains `buy` and `matches` is `false`, where when query is `Buy` the `matches` is `True`.
-3. Cause (file and line): file: `tracker-v0.js` and line no. `56`.
-
-**Evidence**
-```
 > search buy
 [trace] searchErrands: {"text":"Buy a notebook","query":"buy","matches":false}
 [trace] searchErrands: {"text":"Order a gas cylinder","query":"buy","matches":false}
 [trace] searchErrands: {"text":"Fix the bike light","query":"buy","matches":false}
 No errands match.
+```
+
+**A guess I ruled out, and the one change that ruled it out:**
+
+My first guess was that `search` was broken for every query. I ruled it out by changing one thing: I searched `Buy` with a capital B instead of `buy`. It found the errand, so search works, and only the lower-case query fails.
+
+```
 > search Buy
 [trace] searchErrands: {"text":"Buy a notebook","query":"Buy","matches":true}
 [trace] searchErrands: {"text":"Order a gas cylinder","query":"Buy","matches":false}
@@ -157,19 +139,31 @@ No errands match.
 You have 1 errands
 ```
 
-**The changes I made:**
+**Cause chain** (from what I saw to the line that causes it; each link with its evidence):
+1. Symptom: The errand "Buy a notebook" exists, but `search buy` prints "No errands match."
+2. `matches` is false for the query `buy` and true for the query `Buy` on the same text (evidence: the `[trace] searchErrands` lines above and in the Actual block), so the comparison is case-sensitive.
+3. Cause (file and line): `tracker-v0.js`, line 56: `const matches = errand.text.includes(query);` compares the text and the query without ignoring upper and lower case.
+
+**Evidence** (paste the `[trace]` lines that show each link):
+```
+> search buy
+[trace] searchErrands: {"text":"Buy a notebook","query":"buy","matches":false}
+> search Buy
+[trace] searchErrands: {"text":"Buy a notebook","query":"Buy","matches":true}
+```
+
+**The change I made** (the line before and after):
 
 Before:
-` const matches = errand.text.includes(query); `
+`const matches = errand.text.includes(query);`
 
 After:
-`const matches = errand.text.toLowerCase().includes(query.toLowerCase()); `
+`const matches = errand.text.toLowerCase().includes(query.toLowerCase());`
 
-**How I confirmed the fix**
+**How I confirmed the fix** (the test and the run after the change):
 
-By searching for keywords in the given list. The chages to line `56` ensure the query and original text are in the lower-case.
+The change on line 56 makes both the text and the query lower case before comparing. The test run below was made after this fix. Bug B passes; bugs C, D and E were not fixed yet, so they still fail.
 
-Confirmed by running test:  
 ```
 $ npm run bugs
 
@@ -191,65 +185,30 @@ $ npm run bugs
 ℹ duration_ms 66.1684
 ```
 
+## Bug C: done marks every errand, not just the one I typed
 
-## Bug C
-
-**Steps to reproduce**
-
+**Steps to reproduce** (exact commands, in order, from a fresh start):
 1. node bug-hunt/tracker-v0.js --trace
 2. list
 3. done 1
-4. list
 4. quit
 
 **Expected:**
-
 ```
 Errand tracker v0. Commands: add <text>, list, search <text>, done <id>, quit
 > list
-[trace] formatErrand: {"id":1,"text":"Buy a notebook","done":false}
-[trace] formatErrand: {"id":2,"text":"Order a gas cylinder","done":false}
-[trace] formatErrand: {"id":3,"text":"Fix the bike light","done":false}
-[trace] formatList: {"length":3,"count":3}
 #1 [ ] Buy a notebook
 #2 [ ] Order a gas cylinder
 #3 [ ] Fix the bike light
 You have 3 errands
 > done 1
-[trace] markDone: {"id":1,"text":"Buy a notebook","done":true}
-[trace] markDone: {"id":2,"text":"Order a gas cylinder","done":false}
-[trace] markDone: {"id":3,"text":"Fix the bike light","done":false}
 Done #1
+> quit
+Bye.
 ```
+Only errand #1 should be marked done. In the `[trace] markDone` lines, #2 and #3 should keep their own ids and `"done":false`.
 
-**Actual:**
-
-```
-Errand tracker v0. Commands: add <text>, list, search <text>, done <id>, quit
-> list
-[trace] formatErrand: {"id":1,"text":"Buy a notebook","done":false}
-[trace] formatErrand: {"id":2,"text":"Order a gas cylinder","done":false}
-[trace] formatErrand: {"id":3,"text":"Fix the bike light","done":false}
-[trace] formatList: {"length":3,"count":3}
-#1 [ ] Buy a notebook
-#2 [ ] Order a gas cylinder
-#3 [ ] Fix the bike light
-You have 3 errands
-> done 1
-[trace] markDone: {"id":1,"text":"Buy a notebook","done":true}
-[trace] markDone: {"id":1,"text":"Order a gas cylinder","done":true}
-[trace] markDone: {"id":1,"text":"Fix the bike light","done":true}
-Done #1
-```
-
-**Cause Chain**
-
-1. Sympton: The [trace] shows errands (#1, #2, #3), after `done 1`, the all of their ids are set to `1` and done to `true`
-2. The `errand.id` is assigned (`=`) to the search id instead of `===` (comparison).
-3. Cause (file and line): file: `tracker-v0.js` and line no. `69`.
-
-**Evidence**
-
+**Actual:** (paste the output)
 ```
 Errand tracker v0. Commands: add <text>, list, search <text>, done <id>, quit
 > list
@@ -266,29 +225,43 @@ You have 3 errands
 [trace] markDone: {"id":1,"text":"Order a gas cylinder","done":true}
 [trace] markDone: {"id":1,"text":"Fix the bike light","done":true}
 Done #1
+```
+
+Note: a `[x]` does not show in `list` after `done`, because bug E (the tick is never shown) was still present when I ran this. So I used the `[trace]` lines to see what `done` really does.
+
+**A guess I ruled out, and the one change that ruled it out:**
+
+My first guess was that `done` ignores the number I type and works on the whole list. I ruled it out by changing one thing: I typed `done 2` instead of `done 1`. The typed number appeared in the trace as the new id of every errand, so `done` does use the number I type.
+
+```
 > done 2
 [trace] markDone: {"id":2,"text":"Buy a notebook","done":true}
 [trace] markDone: {"id":2,"text":"Order a gas cylinder","done":true}
 [trace] markDone: {"id":2,"text":"Fix the bike light","done":true}
 Done #2
+```
+
+**Cause chain** (from what I saw to the line that causes it; each link with its evidence):
+1. Symptom: After `done 1`, all three errands in the trace have `"id":1` and `"done":true`, not only #1.
+2. The id I typed is written into every errand instead of being compared with it (evidence: after `done 1` every errand has id 1, and after `done 2` every errand has id 2, see the traces above and below).
+3. Cause (file and line): `tracker-v0.js`, line 69: `if (errand.id = id)` uses `=` (assignment) instead of `===` (comparison). An assignment is always true here, so every errand is marked done.
+
+**Evidence** (paste the `[trace]` lines that show each link):
+```
 > done 3
 [trace] markDone: {"id":3,"text":"Buy a notebook","done":true}
 [trace] markDone: {"id":3,"text":"Order a gas cylinder","done":true}
 [trace] markDone: {"id":3,"text":"Fix the bike light","done":true}
 Done #3
-> done 4
-[trace] markDone: {"id":4,"text":"Buy a notebook","done":true}
-[trace] markDone: {"id":4,"text":"Order a gas cylinder","done":true}
-[trace] markDone: {"id":4,"text":"Fix the bike light","done":true}
-Done #4
 > done 5
 [trace] markDone: {"id":5,"text":"Buy a notebook","done":true}
 [trace] markDone: {"id":5,"text":"Order a gas cylinder","done":true}
 [trace] markDone: {"id":5,"text":"Fix the bike light","done":true}
 Done #5
 ```
+Errand 5 does not exist, yet the program said "Done #5", which also shows that the check is always true.
 
-**The changes I made:**
+**The change I made** (the line before and after):
 
 Before:
 `if (errand.id = id)`
@@ -296,9 +269,9 @@ Before:
 After:
 `if (errand.id === id)`
 
-**How I confirmed the fix**
+**How I confirmed the fix** (the test and the run after the change):
 
-Since Bug E interferes with actually displaying the `x` mark when list is called. By following the trace, we can be ensured that actual change is taking place. As evidence shows, previously, no matter what `done <value>` would've been entered, all id's would've been set to the given `<value>`. Now the program clearly states when an Id does not exist and if it doesn, set's it's done to `true`.
+After the change, `done 5` is refused because there is no errand 5, and `done 1` changes only errand #1. In the last `list`, the trace shows `"done":true` for #1, but `[ ]` is still printed, because of bug E (see Bug E below).
 
 ```
 Errand tracker v0. Commands: add <text>, list, search <text>, done <id>, quit
@@ -332,48 +305,31 @@ Done #1
 You have 3 errands
 ```
 
+The test run for this fix is the one in Bug D below: it shows `✔ bug C: done ticks only the errand with that id`.
 
-## Bug D
+## Bug D: an errand made of spaces is accepted
 
-**Steps to reproduce**
-1. node bug-hunt/tracker-v0.js
-2. `add __` '_' here dictate 1 space
+**Steps to reproduce** (exact commands, in order, from a fresh start):
+1. node bug-hunt/tracker-v0.js --trace
+2. add followed by two spaces (type `add`, press the space bar twice, press Enter)
 3. list
-4. quit   
+4. quit
 
 **Expected:**
-
 ```
 Errand tracker v0. Commands: add <text>, list, search <text>, done <id>, quit
 > add
 Errand text cannot be empty.
-```
-
-**Actual:**
-
-```
-> add
-Added #4:
 > list
 #1 [ ] Buy a notebook
 #2 [ ] Order a gas cylinder
 #3 [ ] Fix the bike light
-#4 [ ]
-You have 4 errands
+You have 3 errands
 ```
 
-**Cause Chain**
-1. Symptom: Adding 2 or more spaces adds an empty errand. Whereas, 1 space results in no empty errand being added.
-2. Empty errand is printed when doing `list`.
-3. Cause (file and line): file: `tracker-v0.js` and line no: `45`
-
-**Evidence**
-
+**Actual:** (paste the output)
 ```
 Errand tracker v0. Commands: add <text>, list, search <text>, done <id>, quit
-> add
-[trace] addErrand: {"text":"","nextId":4}
-Errand text cannot be empty.
 > add
 [trace] addErrand: {"text":" ","nextId":4}
 Added #4:
@@ -390,17 +346,41 @@ Added #4:
 You have 4 errands
 ```
 
-**The changes I made:**
+**A guess I ruled out, and the one change that ruled it out:**
 
-Before: 
+My first guess was that the program does not check for empty text at all. I ruled it out by changing one thing: I typed `add` followed by only one space. The trace shows an empty text, and the program refused it. So the empty check works, and it only fails when the text is made of a space.
+
+```
+> add
+[trace] addErrand: {"text":"","nextId":4}
+Errand text cannot be empty.
+```
+
+**Cause chain** (from what I saw to the line that causes it; each link with its evidence):
+1. Symptom: `add` followed by one space is refused, but `add` followed by two spaces adds an errand #4 with no visible text, and `list` shows an empty `#4 [ ]` and "You have 4 errands".
+2. In the two-space run, `addErrand` receives the text `" "` (a single space), which is not an empty string (evidence: `[trace] addErrand: {"text":" ","nextId":4}` above; in the one-space run the trace shows `"text":""` and is refused).
+3. Cause (file and line): `tracker-v0.js`, line 45: `if (text === '')` only catches text that is exactly empty. The text `' '` is not equal to `''`, so the check lets it through.
+
+**Evidence** (paste the `[trace]` lines that show each link):
+```
+[trace] addErrand: {"text":"","nextId":4}
+Errand text cannot be empty.
+[trace] addErrand: {"text":" ","nextId":4}
+Added #4:
+[trace] formatErrand: {"id":4,"text":" ","done":false}
+```
+
+**The change I made** (the line before and after):
+
+Before:
 `if (text === '')`
 
 After:
 `if (text.trim() === '')`
 
-**How I confirmed the fix**
+**How I confirmed the fix** (the test and the run after the change):
 
-The test:
+The test, run after the fix. Bugs A to D pass. Bug E was not fixed yet at this point, so it still fails.
 ```
 > errand-tracker@1.0.0 bugs
 > node --test bug-hunt/bugs.test.js
@@ -420,7 +400,7 @@ The test:
 ℹ duration_ms 65.8565
 ```
 
-Run after fixing the bug:
+Run after the fix. The first `add` has no text and the second has ten spaces; both are refused, and a real errand is still accepted:
 ```
 $ node bug-hunt/tracker-v0.js
 Errand tracker v0. Commands: add <text>, list, search <text>, done <id>, quit
@@ -438,22 +418,16 @@ Added #4: Meet CEO of NDURE
 You have 4 errands
 ```
 
-Here the first `add` and vlaue was left empty. The subsequent one tried 10 spaces. 
-Both were rejected. Thus, fixing the bug.
+## Bug E: a done errand does not show a tick (extra bug, not one of my three chosen)
 
-
-## Bug E
-
-**Steps to reproduce:**
-
-1. node bug-hunt/tracker-v0.js --trace
+**Steps to reproduce** (exact commands, in order, from a fresh start):
+1. node bug-hunt/tracker-v0.js
 2. done 1
 3. done 2
 4. list
 5. quit
 
 **Expected:**
-
 ```
 Errand tracker v0. Commands: add <text>, list, search <text>, done <id>, quit
 > done 1
@@ -467,8 +441,7 @@ Done #2
 You have 3 errands
 ```
 
-**Actual:**
-
+**Actual:** (paste the output)
 ```
 Errand tracker v0. Commands: add <text>, list, search <text>, done <id>, quit
 > done 1
@@ -482,14 +455,16 @@ Done #2
 You have 3 errands
 ```
 
-**Cause Chain**
+**A guess I ruled out, and the one change that ruled it out:**
 
-1. Symptom: done 1 and done 2, do not show the errands as ticked off
-2. The errands are done, but they're not displayed as being ticked (evidence shows 1 as done, but displayed as [ ])
-3. Cause (file and line): file: `tracker-v0.js` and line no: `26`
+My first guess was that `done` never marks the errand as done. I ruled it out by running the same commands with `--trace`. The trace shows `"done":true` for errand 1 after `done 1`, so the errand is marked and the problem is in how `list` shows it. (Bug C was already fixed in this run, so only errand 1 changed.)
 
-**Evidence**
+**Cause chain** (from what I saw to the line that causes it; each link with its evidence):
+1. Symptom: After `done 1` and `done 2`, `list` shows `[ ]` for both errands instead of `[x]`.
+2. The errand data says done, but the display does not use it (evidence: the `[trace] formatErrand` line shows `"done":true` for errand 1, while the printed line is `#1 [ ]`).
+3. Cause (file and line): `tracker-v0.js`, line 26: `const tick = errand.don ? '[x]' : '[ ]';` has a typo, `errand.don` instead of `errand.done`. `errand.don` does not exist, so it is always empty and the tick is always `[ ]`.
 
+**Evidence** (paste the `[trace]` lines that show each link):
 ```
 Errand tracker v0. Commands: add <text>, list, search <text>, done <id>, quit
 > done 1
@@ -508,15 +483,15 @@ Done #1
 You have 3 errands
 ```
 
-**The changes I made**
+**The change I made** (the line before and after):
 
 Before:
-`const tick = errand.don ? '[x]' : '[ ]';  `
+`const tick = errand.don ? '[x]' : '[ ]';`
 
 After:
-`const tick = errand.done ? '[x]' : '[ ]';  `
+`const tick = errand.done ? '[x]' : '[ ]';`
 
-**How I confirmed the fix**
+**How I confirmed the fix** (the test and the run after the change):
 
 The test:
 ```
@@ -530,8 +505,8 @@ The test:
 ✔ bug E: a done errand shows a tick (0.1201ms)
 ```
 
-Run after fix:
-```  
+Run after the fix:
+```
 $ node bug-hunt/tracker-v0.js
 Errand tracker v0. Commands: add <text>, list, search <text>, done <id>, quit
 > done 1
@@ -544,5 +519,3 @@ Done #2
 #3 [ ] Fix the bike light
 You have 3 errands
 ```
-
-I ended up doing Bug E as well. Since, I was bored.
