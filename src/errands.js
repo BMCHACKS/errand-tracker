@@ -53,6 +53,10 @@ export function countOpen(list) {
     return count;
 }
 
+export function count(){
+    return "Open: " + countOpen(errands) + ", done: " + (errands.length - countOpen(errands));
+}
+
 // Lab 2.12. The errands whose text contains the query, ignoring upper and
 // lower case. Bring your searchErrands from chapter 2.8.
 export function searchErrands(list, query) {
@@ -85,7 +89,45 @@ export function add(text) {
 // Lab 2.10: list('') returns formatList of every errand.
 // Capstone 2: list('open') and list('done').
 export function list(which) {
-    return formatList(errands);
+    if (which.trim() === ''){
+        return formatList(errands);
+    }
+    
+    which = which.trim().toLowerCase();
+
+    if (which === "open"){
+        let openErrands = [];
+        for (const errand of errands){
+            if (!errand.done){
+                openErrands.push(errand);
+            }
+        }
+
+        if (openErrands.length === 0){
+            return "No open errands."
+        }
+
+        openErrands = formatList(openErrands);
+        return openErrands;
+    } 
+
+    if (which === "done"){
+        let doneErrands = [];
+        for (const errand of errands){
+            if (errand.done){
+                doneErrands.push(errand);
+            }
+        }
+
+        if (doneErrands.length === 0){
+            return "No done errands."
+        }
+
+        doneErrands = formatList(doneErrands);
+        return doneErrands;
+    }
+
+    return undefined;
 }
 
 // Lab 2.12. Return the matching errands, one line each, then '1 found'.
