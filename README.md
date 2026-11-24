@@ -1,26 +1,63 @@
 # Errand tracker
 
-A small command-line errand tracker that you build yourself in the Dev Weekends Level 1 course (Code Foundations, by Zeeshan Adil). It grows in four steps, one per module:
+A small command-line errand tracker.
 
-1. **Bug log.** Run the finished but buggy tracker in `bug-hunt/`, trace three of its bugs to their causes, and fix them.
-2. **Tracker v1.** Write your own tracker in `src/errands.js`: add, list, search and done.
-3. **Tracker v2.** Save the errands in a SQLite file, so they are still there tomorrow.
-4. **Tracker v3.** Move the code into an `Errand` class and an `ErrandStore` class, with your own tests.
+**How to Run it**
 
-Each step ends with a tag: `capstone-1` to `capstone-4`.
+```
+npm start
+```
 
-## Commands you will use
+**Features**
 
-| Command | What it does |
-|---|---|
-| `npm run doctor` | checks Node, SQLite, Git and this repository, and says the one thing to fix |
-| `npm run where` | says which lab you are on and what to do next |
-| `npm run tracker-v0` | runs the buggy tracker (module 1) |
-| `npm start` | runs your own tracker (module 2 on) |
-| `npm run lab-2.10` | runs one lab's tests (each lab has its own) |
-| `npm run capstone-2` | runs a capstone's checks before you tag it |
-| `npm run check-tag -- capstone-2` | says whether your tag is made the right way and is on GitHub |
+- add  some_errand : adds a given errand to the tracker
+- list : shows all errands
+  - list open : displays all open errands
+  - list done : displays all done errands
+- search ___ : searches for a given keyword in all tasks, displays all tasks which include the given string
+- count : displays count of done and open errands
+- quit : ends the program
 
-When you push a `capstone-N` tag, GitHub Actions runs the same checks (see the Actions tab).
+**Sample Run**
 
-Replace this README with your own in module 2: what your tracker does, a sample session from your own run, and how to run it.
+```
+$ npm start
+
+> errand-tracker@1.0.0 start
+> node src/cli.js
+
+Errand tracker. Type help to see the commands, quit to stop.
+> add Meet CEO of NDURE
+Added #1: Meet CEO of NDURE
+> list
+#1 [ ] Meet CEO of NDURE
+You have 1 errand
+> add Go to design workshop on 25th nov
+Added #2: Go to design workshop on 25th nov
+> add Design 3D keyword with Mr. Brown
+Added #3: Design 3D keyword with Mr. Brown
+> list
+#1 [ ] Meet CEO of NDURE
+#2 [ ] Go to design workshop on 25th nov
+#3 [ ] Design 3D keyword with Mr. Brown
+You have 3 errands
+> done 1
+Done #1: Meet CEO of NDURE
+> list
+#1 [x] Meet CEO of NDURE
+#2 [ ] Go to design workshop on 25th nov
+#3 [ ] Design 3D keyword with Mr. Brown
+You have 3 errands
+> list done
+#1 [x] Meet CEO of NDURE
+You have 1 errand
+> list open
+#2 [ ] Go to design workshop on 25th nov
+#3 [ ] Design 3D keyword with Mr. Brown
+You have 2 errands
+> count
+Open: 2, done: 1
+> quit
+Bye.
+```
+

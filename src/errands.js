@@ -18,7 +18,7 @@ export function formatErrand(errand) {
     if (errand.done){
         brackets = '[x]';
     }
-    return '#' + errand.id + " "+ brackets +" " + errand.text;
+    return '#' + errand.id + " " + brackets + " " + errand.text;
 }
 
 // Lab 2.10. Every errand on its own line, then 'You have 2 errands'
@@ -127,7 +127,7 @@ export function list(which) {
         return doneErrands;
     }
 
-    return undefined;
+    return "Enter a valid list command!";
 }
 
 // Lab 2.12. Return the matching errands, one line each, then '1 found'.
