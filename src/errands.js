@@ -18,7 +18,7 @@ export function formatErrand(errand) {
     if (errand.done){
         brackets = '[x]';
     }
-    return'#' + errand.id + " "+ brackets +" " + errand.text;
+    return '#' + errand.id + " "+ brackets +" " + errand.text;
 }
 
 // Lab 2.10. Every errand on its own line, then 'You have 2 errands'
@@ -91,9 +91,35 @@ export function list(which) {
 // Lab 2.12. Return the matching errands, one line each, then '1 found'.
 // No match: 'No errands match "milk".'
 export function search(query) {
+    let searched = searchErrands(errands, query);
+    let found    = [];
+
+    if (searched.length === 0){
+        found.push('No errands match "' + query + '".');
+    } else {
+        for (const errand of searched){
+            found.push(formatErrand(errand));
+        }
+        found.push(found.length + " found");
+    }
+
+    return found.join("\n");
 }
 
 // Lab 2.12. idText is what was typed, for example '2'.
 // Return 'Done #2: Pay the bill', 'No errand #9.' or '#2 is already done.'
 export function done(idText) {
+    if (!(idText < nextId && idText > 0)){
+        return "No errand #" + idText + ".";
+    }
+
+    let errand = errands[idText-1];
+    if (errand.done){
+        return "#" + idText + " is already done.";
+    }
+
+    errands[idText-1].done = true;
+    return "Done #" + errand.id + ": " + errand.text;
 }
+
+
