@@ -32,7 +32,6 @@ export function formatList(list) {
         for (const errand of list){
             lines.push(formatErrand(errand));
         }
-
         let msg = "You have " + lines.length;
         if (lines.length === 1) { 
             msg = msg + " errand"
@@ -71,11 +70,22 @@ export function searchErrands(list, query) {
 // Lab 2.10. Add an errand with the next id and return 'Added #1: Buy rice'.
 // Refuse empty text (or only spaces) with 'Errand text cannot be empty.'
 export function add(text) {
+    text = text.trim();
+
+    if (text.length === 0) {
+        return "Errand text cannot be empty.";
+    }
+
+    errands.push({id: nextId, text: text, done: false});
+    nextId++;
+    
+    return "Added #" + (nextId-1) + ": " + text;
 }
 
 // Lab 2.10: list('') returns formatList of every errand.
 // Capstone 2: list('open') and list('done').
 export function list(which) {
+    return formatList(errands);
 }
 
 // Lab 2.12. Return the matching errands, one line each, then '1 found'.
