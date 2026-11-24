@@ -24,6 +24,25 @@ export function formatErrand(errand) {
 // Lab 2.10. Every errand on its own line, then 'You have 2 errands'
 // ('You have 1 errand' for one). An empty list gives 'No errands yet.'
 export function formatList(list) {
+    let lines = [];
+
+    if (list.length === 0) {
+        lines.push("No errands yet.");
+    } else {
+        for (const errand of list){
+            lines.push(formatErrand(errand));
+        }
+
+        let msg = "You have " + lines.length;
+        if (lines.length === 1) { 
+            msg = msg + " errand"
+        } else {
+            msg = msg + " errands"
+        }
+        lines.push(msg);
+    }
+
+    return lines.join("\n");
 }
 
 // Lab 2.12. How many errands in the list are not done.
