@@ -14,11 +14,11 @@ let nextId = 1;
 // { id: 1, text: 'Buy rice', done: false } gives '#1 [ ] Buy rice'
 // { id: 4, text: 'Pay the bill', done: true } gives '#4 [x] Pay the bill'
 export function formatErrand(errand) {
-    let brackets = '[ ]';
-    if (errand.done){
-        brackets = '[x]';
+    let brackets = "[ ]";
+    if (errand.done) {
+        brackets = "[x]";
     }
-    return '#' + errand.id + " " + brackets + " " + errand.text;
+    return "#" + errand.id + " " + brackets + " " + errand.text;
 }
 
 // Lab 2.10. Every errand on its own line, then 'You have 2 errands'
@@ -29,14 +29,14 @@ export function formatList(list) {
     if (list.length === 0) {
         lines.push("No errands yet.");
     } else {
-        for (const errand of list){
+        for (const errand of list) {
             lines.push(formatErrand(errand));
         }
         let msg = "You have " + lines.length;
-        if (lines.length === 1) { 
-            msg = msg + " errand"
+        if (lines.length === 1) {
+            msg = msg + " errand";
         } else {
-            msg = msg + " errands"
+            msg = msg + " errands";
         }
         lines.push(msg);
     }
@@ -47,26 +47,28 @@ export function formatList(list) {
 // Lab 2.12. How many errands in the list are not done.
 export function countOpen(list) {
     let count = 0;
-    for (const errand of list){
-        if (!errand.done) { count++; }
+    for (const errand of list) {
+        if (!errand.done) {
+            count++;
+        }
     }
     return count;
 }
 
-export function count(){
+export function count() {
     return "Open: " + countOpen(errands) + ", done: " + (errands.length - countOpen(errands));
 }
 
 // Lab 2.12. The errands whose text contains the query, ignoring upper and
 // lower case. Bring your searchErrands from chapter 2.8.
 export function searchErrands(list, query) {
-    let errands = [];
-    for (const errand of list){
-        if (errand.text.toLowerCase().includes(query.trim().toLowerCase())){
-            errands.push(errand);
+    let matches = [];
+    for (const errand of list) {
+        if (errand.text.toLowerCase().includes(query.trim().toLowerCase())) {
+            matches.push(errand);
         }
     }
-    return errands;
+    return matches;
 }
 
 // ---- Commands (cli.js calls these) ----
@@ -80,66 +82,50 @@ export function add(text) {
         return "Errand text cannot be empty.";
     }
 
-    errands.push({id: nextId, text: text, done: false});
+    errands.push({ id: nextId, text: text, done: false });
     nextId++;
-    
-    return "Added #" + (nextId-1) + ": " + text;
+
+    return "Added #" + (nextId - 1) + ": " + text;
 }
 
 // Lab 2.10: list('') returns formatList of every errand.
 // Capstone 2: list('open') and list('done').
 export function list(which) {
-    if (which.trim() === ''){
-        return formatList(errands);
-    }
-    
     which = which.trim().toLowerCase();
 
-    if (which === "open"){
-        let openErrands = [];
-        for (const errand of errands){
-            if (!errand.done){
-                openErrands.push(errand);
-            }
-        }
-
-        if (openErrands.length === 0){
-            return "No open errands."
-        }
-
-        openErrands = formatList(openErrands);
-        return openErrands;
-    } 
-
-    if (which === "done"){
-        let doneErrands = [];
-        for (const errand of errands){
-            if (errand.done){
-                doneErrands.push(errand);
-            }
-        }
-
-        if (doneErrands.length === 0){
-            return "No done errands."
-        }
-
-        doneErrands = formatList(doneErrands);
-        return doneErrands;
+    if (which === "") {
+        return formatList(errands);
     }
 
-    return "Enter a valid list command!";
+    if (which !== "open" && which !== "done") {
+        return "Enter a valid list command!";
+    }
+
+    const wantDone = which === "done";
+    let matching = [];
+    for (const errand of errands) {
+        if (errand.done === wantDone) {
+            matching.push(errand);
+        }
+    }
+
+    if (matching.length === 0) {
+        return "No " + which + " errands.";
+    }
+
+    return formatList(matching);
 }
 
 // Lab 2.12. Return the matching errands, one line each, then '1 found'.
 // No match: 'No errands match "milk".'
 export function search(query) {
     let searched = searchErrands(errands, query);
-    let found    = [];
+    let found = [];
 
-    if (searched.length === 0){
-        found.push('No errands match "' + query + '".');
+    if (searched.length === 0) {
+        found.push("No errands match \"" + query + "\".");
     } else {
-        for (const errand of searched){
+        for (const errand of searched) {
             found.push(formatErrand(errand));
         }
         found.push(found.length + " found");
@@ -151,17 +137,15 @@ export function search(query) {
 // Lab 2.12. idText is what was typed, for example '2'.
 // Return 'Done #2: Pay the bill', 'No errand #9.' or '#2 is already done.'
 export function done(idText) {
-    if (!(idText < nextId && idText > 0)){
+    if (!(idText < nextId && idText > 0)) {
         return "No errand #" + idText + ".";
     }
 
-    let errand = errands[idText-1];
-    if (errand.done){
+    let errand = errands[idText - 1];
+    if (errand.done) {
         return "#" + idText + " is already done.";
     }
 
-    errands[idText-1].done = true;
+    errands[idText - 1].done = true;
     return "Done #" + errand.id + ": " + errand.text;
 }
-
-

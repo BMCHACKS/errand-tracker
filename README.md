@@ -2,6 +2,13 @@
 
 A small command-line errand tracker.
 
+**Get the code**
+
+```
+git clone https://github.com/BMCHACKS/errand-tracker.git
+cd errand-tracker
+```
+
 **How to Run it**
 
 ```
@@ -14,6 +21,7 @@ npm start
 - list : shows all errands
   - list open : displays all open errands
   - list done : displays all done errands
+- done 1 : marks the errand with that number as done
 - search ___ : searches for a given keyword in all tasks, displays all tasks which include the given string
 - count : displays count of done and open errands
 - quit : ends the program
@@ -60,4 +68,3 @@ Open: 2, done: 1
 > quit
 Bye.
 ```
-
